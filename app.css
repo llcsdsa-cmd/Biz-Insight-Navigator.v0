@@ -1,0 +1,267 @@
+/* ============================================================
+   GRAND DESIGN - UNIVERSAL CARD SYSTEM
+   ============================================================ */
+
+/* 1. カード全体の器：サイズ・余白・角丸の完全同期 */
+.master-card {
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px !important;    /* 角丸をしっかり確保 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    
+    /* 配置：画面端にぶつからないよう左右16pxを確保 */
+    width: calc(100% - 32px) !important;
+    margin: 0 auto 16px auto !important; /* 左右中央、下16px */
+    
+    /* 内部：スリム版の余白を採用 */
+    padding: 16px 20px !important;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+/* 2. カードヘッダー：アイコンとタイトルの整列 */
+.card-header-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.card-title {
+    font-size: 14px !important; /* 高密度化サイズ */
+    font-weight: 700;
+    color: #334155;
+    margin: 0;
+}
+
+/* 3. 作業エリア：パステルブルーの背景 */
+.card-work-area {
+    background: #f8fbff;
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    padding: 12px 16px !important;
+    margin-bottom: 12px !important;
+}
+
+/* 4. 入力ラベルとフィールド：視認性・サイズ調整 */
+.field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.field-input {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px !important; /* タイトサイズ */
+    font-size: 13px !important;
+    color: #1e293b;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.field-input:focus {
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
+}
+
+/* 5. 汎用ボタン：トーンとサイズ */
+.btn-primary-muted {
+    background: #475569;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 20px !important;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+/* 保存・実行などのメインボタン */
+.btn-save-action {
+    background: #5ab59a;
+    color: white;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(90, 181, 154, 0.2);
+}
+
+/* ============================================================
+   MODULE SPECIFIC (仕訳帳・CSV・ダッシュボード)
+   ============================================================ */
+
+/* 仕訳帳：新規登録・金額の強調 */
+.btn-new-entry {
+    background: #5ab59a !important;
+    padding: 10px 24px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 10px rgba(90, 181, 154, 0.3) !important;
+}
+
+.journal-card {
+    border-left: 4px solid #5ab59a !important;
+}
+
+.amount-val {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+}
+
+/* CSVインポート：ゾーン・テーブル */
+.import-zone {
+    margin-top: 10px !important;
+    margin-bottom: 24px !important;
+}
+
+.csv-upload-zone {
+    border: 2px dashed #cbd5e1 !important;
+    background: #ffffff !important;
+    border-radius: 12px;
+    padding: 30px !important; /* 少し絞ってバランス調整 */
+    text-align: center;
+}
+
+.import-preview-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+}
+
+.import-preview-table th {
+    background: #f8fafc;
+    color: #64748b;
+    padding: 8px !important;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* 全体コンテナの余白確保 */
+.dashboard-container, .main-content {
+    padding: 0 16px !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ===== FINAL APPEARANCE ADJUSTMENT (右側余白と角丸の救出・スリム版統合) ===== */
+
+/* 1. カードを画面端から離し、左右余白と角丸を確保 */
+.master-card {
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px !important;    /* 角丸をしっかり確保 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    
+    /* 配置：左右16pxの余裕を持たせる */
+    width: calc(100% - 32px) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 20px !important;
+    
+    /* 内部余白：スリム版を採用 */
+    padding: 16px 20px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;       /* 中身がはみ出さないようにガード */
+    transition: transform 0.2s ease;
+}
+
+/* 2. ヘッダーや入力エリアの余白調整 */
+.card-header-group {
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+}
+
+.card-title {
+    font-size: 14px !important; /* 高密度化サイズ */
+}
+
+.card-work-area {
+    padding: 12px 16px !important;
+    margin-bottom: 12px !important;
+}
+
+/* ===== Visual Unification & Recovery ===== */
+
+/* 1. ナビゲーションの矯正：縦並びを解消し、下部固定の横並びへ */
+.nav-bar {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 70px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(8px);
+    display: flex !important;
+    flex-direction: row !important; /* 横並びを強制 */
+    justify-content: space-around !important;
+    align-items: center !important;
+    border-top: 1px solid #e2e8f0 !important;
+    z-index: 10000 !important;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-link {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    color: #64748b !important;
+    font-size: 10px !important;
+    gap: 4px;
+}
+
+.nav-link.active {
+    color: #3b82f6 !important;
+    font-weight: bold;
+}
+
+.nav-icon {
+    font-size: 22px !important;
+}
+
+/* 2. メインコンテンツを中央寄せにし、カードの間隔を整える */
+.main-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 20px 16px 100px 16px !important;
+    background-color: #f1f5f9 !important;
+    min-height: 100vh;
+}
+
+/* 3. カードの見た目を統一（バラバラな背景や余白をリセット） */
+.section-card, 
+section[style*="background-color: white"],
+div[style*="background-color: white"] {
+    background: #ffffff !important;
+    width: 100% !important;
+    max-width: 500px !important;
+    margin-bottom: 12px !important;
+    border-radius: 16px !important;
+    padding: 16px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    border: 1px solid #e2e8f0 !important;
+    box-sizing: border-box !important;
+}
+
+/* 4. 仕訳リストなどの内部パーツも整える */
+.journal-item {
+    background: #f8fafc !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    margin-bottom: 8px !important;
+}
