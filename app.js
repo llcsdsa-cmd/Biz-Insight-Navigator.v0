@@ -3137,46 +3137,50 @@ function updateAdvisorWhisper() {
 
 /**
  * 🧭 スマートルールの描画（レンダリング）
- * userCustomRules 配列の中身を HTMLカードに変換して画面に出す
+ * パステル調のデザインとサイズ統一を適用
  */
 function renderSmartRules() {
     const listContainer = document.getElementById('smart-rule-list');
     const badge = document.getElementById('rule-count-badge');
     
-    // 要素が見つからない場合はスキップ（エラー防止）
     if (!listContainer || !badge) return;
     
-    // 1. 中身を一旦空にする
     listContainer.innerHTML = '';
-    
-    // 2. ルール件数をバッジに反映
     badge.innerText = `${userCustomRules.length} ルール登録済み`;
 
-    // 3. ルールをループしてカードを生成
     userCustomRules.forEach((rule, index) => {
         const card = document.createElement('div');
-        // カードのスタイル（Tailwind）を適用
-        card.className = "bg-white border border-indigo-100 p-4 rounded-xl shadow-sm hover:shadow-md transition relative group animate-fade-in";
         
+        // 【修正点】クラス名を rule-card に変更し、サイズと色を固定
+        card.className = "rule-card animate-fade-in group"; 
+        
+        // 【修正点】インラインスタイルでパステル調の配色を徹底
         card.innerHTML = `
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-gray-800 text-sm">${rule.keyword}</h3>
-                <button onclick="deleteSmartRule(${index})" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">
-                    <i class="fas fa-trash-alt text-xs"></i>
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                <h3 style="margin:0; font-size: 14px; font-weight: bold; color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${rule.keyword}
+                </h3>
+                <button onclick="deleteSmartRule(${index})" style="background:none; border:none; color:#cbd5e1; cursor:pointer; transition: 0.2s;" class="btn-delete-hover">
+                    <i class="fas fa-trash-alt" style="font-size: 12px;"></i>
                 </button>
             </div>
-            <div class="flex flex-col gap-1">
-                <span class="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full w-fit font-bold">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 11px; color: #475569; background: #f0f4ff; padding: 2px 10px; border-radius: 6px; width: fit-content; font-weight: 600; border: 1px solid #e0e7ff;">
                     ${rule.account}
                 </span>
-                <span class="text-[10px] text-gray-400">
-                    <i class="fas fa-wallet mr-1"></i> ${rule.wallet || '自動判定'}
+                <span style="font-size: 10px; color: #94a3b8; display: flex; align-items: center; gap: 4px; padding-left: 4px;">
+                    <i class="fas fa-wallet" style="font-size: 9px;"></i> ${rule.wallet || '自動判定'}
                 </span>
             </div>
         `;
         listContainer.appendChild(card);
     });
 }
+/**
+ * 🧭 スマートルールの描画（レンダリング）
+ * パステル調のデザインとサイズ統一を適用　終わり
+ */
+
 
 /**
  * ➕ 新しいルールの追加
