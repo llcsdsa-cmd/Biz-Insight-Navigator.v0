@@ -3152,6 +3152,93 @@ function updateAdvisorWhisper() {
   </div>
 </div>
 
+/**
+ * 🧭 スマートルールの描画（レンダリング）
+ * userCustomRules 配列の中身を HTMLカードに変換して画面に出す
+ */
+function renderSmartRules() {
+    const listContainer = document.getElementById('smart-rule-list');
+    const badge = document.getElementById('rule-count-badge');
+    
+    // 1. 中身を一旦空にする
+    listContainer.innerHTML = '';
+    
+    // 2. ルール件数をバッジに反映
+    badge.innerText = `${userCustomRules.length} ルール登録済み`;
+
+    // 3. ルールをループしてカードを生成
+    userCustomRules.forEach((rule, index) => {
+        const card = document.createElement('div');
+        // カードのスタイル（Tailwind）を適用
+        card.className = "bg-white border border-indigo-100 p-4 rounded-xl shadow-sm hover:shadow-md transition relative group animate-fade-in";
+        
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold text-gray-800 text-sm">${rule.keyword}</h3>
+                <button onclick="deleteSmartRule(${index})" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">
+                    <i class="fas fa-trash-alt text-xs"></i>
+                </button>
+            </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full w-fit font-bold">
+                    ${rule.account}
+                </span>
+                <span class="text-[10px] text-gray-400">
+                    <i class="fas fa-wallet mr-1"></i> ${rule.wallet || '自動判定'}
+                </span>
+            </div>
+        `;
+        listContainer.appendChild(card);
+    });
+}
+
+/**
+ * ➕ 新しいルールの追加
+ */
+function addNewSmartRule() {
+    const keyword = document.getElementById('new-rule-keyword').value;
+    const account = document.getElementById('new-rule-account').value;
+    const wallet = document.getElementById('new-rule-wallet').value;
+
+    if (!keyword) {
+        alert("キーワードを入力してくださいぜ、工場長！");
+        return;
+    }
+
+    // 箱（配列）に追加
+    userCustomRules.push({ keyword, account, wallet });
+    
+    // 入力欄をクリア
+    document.getElementById('new-rule-keyword').value = '';
+    
+    // 再描画
+    renderSmartRules();
+}
+
+/**
+ * 🗑️ ルールの削除
+ */
+function deleteSmartRule(index) {
+    if (confirm("このルールを削除してもよろしいですか？")) {
+        userCustomRules.splice(index, 1);
+        renderSmartRules();
+    }
+}
+
+/**
+ * 💾 データの保存（ローカルストレージへ）
+ */
+function persistRules() {
+    localStorage.setItem('bizNaviCustomRules', JSON.stringify(userCustomRules));
+    alert("羅針盤にルールを刻みました！🧭✨");
+}
+
+// --- 初期実行 ---
+// ページ読み込み時に描画する
+document.addEventListener('DOMContentLoaded', () => {
+    renderSmartRules();
+});
+
 
 
 
