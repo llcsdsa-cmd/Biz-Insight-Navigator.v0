@@ -1772,8 +1772,7 @@ function saveTaxSettings() {
 // ===== 消費税設定の保存ここまで =====
 
 
-
-// ===== [2026-05-15 04:10 修正] CSVインポート：ユーザー定義辞書による完全自動仕訳化 =====
+// ===== [2026-05-16 修正] Super Cleaner搭載：全自動仕訳 & 財布判別インポート =====
 async function importPrimpoCSV(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -1781,11 +1780,15 @@ async function importPrimpoCSV(event) {
   const reader = new FileReader();
   reader.onload = async (e) => {
     const text = e.target.result;
+    // 空行を除去して配列化
     const allLines = text.split(/\r\n|\n/).filter(line => line.replace(/,/g, '').trim() !== "");
-    const headerIndex = allLines.findIndex(l => l.includes("日付") && l.includes("金額"));
     
+    // 【マシマシ1】ヘッダーの自動探索（"日付"や"Time"など柔軟に対応）
+    const headerKeywords = ["日付", "金額", "Time", "店舗名", "小計"];
+    const headerIndex = allLines.findIndex(l => headerKeywords.some(key => l.includes(key)));
+
     if (headerIndex === -1) {
-      showToast("CSVの形式が正しくありません", "error");
+      showToast("CSVの形式を判定できませんでした。列名を確認してください", "error");
       return;
     }
 
@@ -1793,67 +1796,95 @@ async function importPrimpoCSV(event) {
     const dataLines = allLines.slice(headerIndex + 1);
     let count = 0;
 
-    // ★ 設定を取得
     const isExempt = isExemptUser();
 
-    dataLines.forEach(line => {
+    // 【マシマシ2】超・正規化ヘルパー（ゆらぎを消し去る）
+    const normalize = (val) => {
+      if (!val) return "";
+      return String(val)
+        .replace(/[！-～]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0)) // 全角→半角
+        .replace(/[\s　]+/g, "") // 空白除去
+        .toUpperCase();
+    };
+
+    dataLines.forEach((line, idx) => {
       const cols = line.split(',').map(c => c.replace(/"/g, '').trim());
       const rowData = {};
       headers.forEach((h, i) => { if (h) rowData[h] = cols[i]; });
-      if (!rowData["日付"] || cols.length < 3) return;
 
-      const rawAmount = rowData["金額"] || "0";
-      const parsedAmount = parseFloat(rawAmount.replace(/[^0-9.]/g, '')) || 0;
-      const formattedDate = rowData["日付"].replace(/\//g, '-');
+      // 【マシマシ3】インボイス番号の抽出（全列からT13桁をハンティング）
+      const normRowString = normalize(JSON.stringify(rowData));
+      const invoiceMatch = normRowString.match(/T\d{13}/);
+      const invoiceNo = invoiceMatch ? invoiceMatch[0] : "";
 
-      // --- [修正] 判定用テキストの統合（内容と備考を合体） ---
-      const memo = rowData["内容"] || "";
-      const note = rowData["備考"] || "";
-      const combinedText = (memo + " " + note).toLowerCase();
+      // 【マシマシ4】支払い方法（財布）の連想スキャン
+      let creditAcc = "現金"; // デフォルト
+      let paymentMemo = "";
+
+      if (rowData['QUOカード_支払'] || normRowString.includes("QUO") || normRowString.includes("ｸｵ")) {
+        creditAcc = "前払費用"; // QUOカード
+        paymentMemo = "[QUO決済]";
+      } else if (/(VISA|MASTER|JCB|AMEX|CARD|ｶｰﾄﾞ|ｸﾚｼﾞｯﾄ)/.test(normRowString)) {
+        creditAcc = "未払金"; // クレジットカード
+        paymentMemo = "[カード決済]";
+      } else if (/(PAYPAY|ﾍﾟｲﾍﾟｲ|楽天ﾍﾟｲ|D払い|LINEPAY)/.test(normRowString)) {
+        creditAcc = "未払金"; // QR決済
+        paymentMemo = "[QR決済]";
+      }
+
+      // 基本データの抽出（列名が違っても拾えるようフォールバックを設定）
+      const rawDate = rowData["日付"] || rowData["日時"] || rowData["Time"] || "";
+      const formattedDate = rawDate.replace(/\//g, '-').split(' ')[0] || new Date().toISOString().split('T')[0];
       
-      let debitAcc = "消耗品費"; // デフォルト
-      let creditAcc = "現金";     // デフォルト
+      const rawAmount = rowData["金額"] || rowData["お預り合計"] || rowData["小計"] || "0";
+      const parsedAmount = parseFloat(rawAmount.replace(/[^0-9.]/g, '')) || 0;
 
-      // --- [修正] ユーザー定義辞書（categoryKeywords）による自動仕訳エンジン ---
+      const vendor = (rowData["店舗名"] || rowData["Template"] || "").replace(/レシート$/, "").trim();
+      const items = rowData["商品名"] || "";
+      const memo = `${vendor} ${items} ${paymentMemo}`.trim();
+
+      if (parsedAmount === 0 && !vendor) return; // ゴミ行はスキップ
+
+      // --- 自動仕訳エンジン（既存の辞書照合） ---
+      let debitAcc = "消耗品費"; 
       let matchedAccount = null;
+      const combinedForSearch = (memo + " " + (rowData["備考"] || "")).toLowerCase();
+
       for (const [accountName, keywords] of Object.entries(categoryKeywords)) {
-        if (keywords.some(kw => combinedText.includes(kw.toLowerCase()))) {
+        if (keywords.some(kw => combinedForSearch.includes(kw.toLowerCase()))) {
           matchedAccount = accountName;
           break;
         }
       }
 
-      // 判定結果に基づいて仕訳をセット
       if (matchedAccount === "売上高") {
         debitAcc = "普通預金"; 
         creditAcc = "売上高";
       } else if (matchedAccount) {
         debitAcc = matchedAccount;
-        creditAcc = "現金";
       }
 
-      // ★ 修正：借方(debit)と貸方(credit)の税区分を動的に決定
+      // 消費税計算（インボイス有無のフラグとしても活用可）
       let dTaxCode = 'non', dTaxAmt = 0;
       let cTaxCode = 'non', cTaxAmt = 0;
-
       if (!isExempt) {
+        const taxRate = normRowString.includes("8%") ? 8 : 10; // 軽減税率の簡易判定
         if (creditAcc === '売上高') {
-          cTaxCode = 'exempt10';
-          cTaxAmt = Math.round(parsedAmount * 10 / 110);
+          cTaxCode = `exempt${taxRate}`;
+          cTaxAmt = Math.round(parsedAmount * taxRate / (100 + taxRate));
         } else {
-          dTaxCode = 'input10';
-          dTaxAmt = Math.round(parsedAmount * 10 / 110);
+          dTaxCode = `input${taxRate}`;
+          dTaxAmt = Math.round(parsedAmount * taxRate / (100 + taxRate));
         }
       }
 
-      // --- [修正] 取引先マスタ判定：収入・支出を問わずマスタから補助科目を特定 ---
-      let predictedSub = identifyClientByMaster(memo);
+      // 取引先マスタ判定
+      let predictedSub = identifyClientByMaster(vendor || items);
       if (predictedSub === "その他取引先") predictedSub = "";
 
       const entry = {
-        id: 'imp_' + Date.now() + count,
+        id: 'imp_' + Date.now() + "_" + idx,
         date: formattedDate,
-        // 支出の場合は借方(debit)に、売上の場合は貸方(credit)に補助科目をセット
         debit: { 
           account: debitAcc, 
           sub: (creditAcc !== '売上高' ? predictedSub : ''), 
@@ -1869,6 +1900,8 @@ async function importPrimpoCSV(event) {
           taxAmount: cTaxAmt 
         },
         memo: memo || 'CSVインポート',
+        invoiceNo: invoiceNo, // 【マシマシ】インボイス番号を保持
+        isAuto: true,
         createdAt: Date.now()
       };
 
@@ -1876,11 +1909,13 @@ async function importPrimpoCSV(event) {
       count++;
     });
 
+    // 保存と反映
     if (typeof saveData === 'function') saveData();
     if (typeof saveToLocalStorage === 'function') saveToLocalStorage();
     renderAll();
     if (typeof updateDashboard === 'function') updateDashboard();
-    showToast(`${count}件のデータを辞書照合してインポートしました`, 'success');
+    
+    showToast(`${count}件のレシートを「羅針盤」が解析して取り込みました🧭`, 'success');
     event.target.value = ''; 
   };
   reader.readAsText(file);
