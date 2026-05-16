@@ -622,48 +622,80 @@
       </div>
       <div id="backup-settings-body"></div>
     </div>
-    
-    <!-- 取引先マスタ管理 -->
-<section id="master-settings" class="bg-white rounded-lg shadow-sm p-6 mb-6">
-  <div class="flex items-center gap-2 mb-4">
-    <span class="text-xl">🏦</span>
-    <h2 class="text-lg font-bold text-gray-800">取引先マスタ管理</h2>
+
+
+
+
+<!-- 自分ルール追加 -->    
+<section id="smart-rule-settings" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 border border-gray-100">
+  <div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl text-white">🧭</span>
+      <div>
+        <h2 class="text-white font-bold">スマートルール（自分辞書）</h2>
+        <p class="text-indigo-100 text-[10px]">あなたの業種に合わせた「正解」を覚えさせましょう</p>
+      </div>
+    </div>
+    <span id="rule-count-badge" class="bg-white/20 text-white text-[10px] px-2 py-1 rounded-full border border-white/30">
+      0 ルール登録済み
+    </span>
   </div>
 
-  <div class="flex flex-wrap gap-2 p-4 bg-blue-50 rounded-lg mb-6 border border-blue-100">
-    <div class="flex-1 min-w-[200px]">
-      <label class="block text-[10px] text-blue-600 font-bold mb-1 uppercase tracking-wider">取引先名 (表示名)</label>
-      <input type="text" id="new-client-name" placeholder="例: 佐川急便" 
-             class="w-full border-0 rounded p-2 text-sm focus:ring-2 focus:ring-blue-400 shadow-sm">
+  <div class="p-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-indigo-50 rounded-xl mb-6 border border-indigo-100">
+      <div class="md:col-span-1">
+        <label class="block text-[10px] text-indigo-600 font-bold mb-1 uppercase tracking-wider">キーワード（店名など）</label>
+        <input type="text" id="new-rule-keyword" placeholder="例: 快活クラブ, ｺﾒﾀﾞ" 
+               class="w-full border-0 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-400 shadow-sm">
+      </div>
+      
+      <div class="md:col-span-1">
+        <label class="block text-[10px] text-indigo-600 font-bold mb-1 uppercase tracking-wider">適用する科目</label>
+        <select id="new-rule-account" class="w-full border-0 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-400 shadow-sm bg-white">
+          <option value="開発費">🚀 開発費</option>
+          <option value="消耗品費">📦 消耗品費</option>
+          <option value="福利厚生費">☕ 福利厚生費</option>
+          <option value="接待交際費">🤝 接待交際費</option>
+          <option value="旅費交通費">🚃 旅費交通費</option>
+          <option value="車両費">🚚 車両費</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-1">
+        <label class="block text-[10px] text-indigo-600 font-bold mb-1 uppercase tracking-wider">デフォルトの財布</label>
+        <select id="new-rule-wallet" class="w-full border-0 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-400 shadow-sm bg-white text-gray-400">
+          <option value="">指定なし（自動推論）</option>
+          <option value="クレジットカード">💳 クレジットカード</option>
+          <option value="現金">💴 現金</option>
+          <option value="PayPay">📱 PayPay</option>
+        </select>
+      </div>
+
+      <div class="flex items-end">
+        <button onclick="addNewSmartRule()" 
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg font-bold text-sm transition shadow-lg whitespace-nowrap active:transform active:scale-95">
+          ルールを追加
+        </button>
+      </div>
     </div>
-    <div class="flex-1 min-w-[200px]">
-      <label class="block text-[10px] text-blue-600 font-bold mb-1 uppercase tracking-wider">判定キーワード (カンマ区切り)</label>
-      <input type="text" id="new-client-keywords" placeholder="例: 佐川, ｻｶﾞﾜ, 伝票" 
-             class="w-full border-0 rounded p-2 text-sm focus:ring-2 focus:ring-blue-400 shadow-sm">
-    </div>
-    <div class="flex items-end">
-      <button onclick="addClientMaster()" 
-              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold text-sm transition shadow-md whitespace-nowrap">
-        追加
+
+    <div id="smart-rule-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      </div>
+
+    <div class="border-t border-gray-100 pt-6">
+      <button onclick="persistRules()" 
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold shadow-xl transition-all flex items-center justify-center gap-3 group">
+        <i class="fas fa-check-double group-hover:scale-125 transition"></i>
+        <span>設定を羅針盤に刻む（保存）</span>
       </button>
+      <p class="text-[10px] text-gray-400 text-center mt-3">
+        ※保存すると次回インポート時から「あなただけの正解」が優先的に適用されます。
+      </p>
     </div>
-  </div>
-
-  <div id="client-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-    </div>
-
-  <div class="border-t border-gray-100 pt-4">
-    <button onclick="saveClientsJson()" 
-            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-bold shadow-lg transition flex items-center justify-center gap-2">
-      <i class="fas fa-save"></i>
-      <span>設定を保存してPythonに反映</span>
-    </button>
-    <p class="text-[10px] text-gray-400 text-center mt-2">
-      ※保存すると clients.json が更新され、次回の分類から反映されます。
-    </p>
   </div>
 </section>
-
+<!-- 自分ルール追加終わり -->
+    
     <!-- インポート自動振り分け -->
     <div class="section-card">
       <div class="section-head">
