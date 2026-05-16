@@ -3135,6 +3135,25 @@ function updateAdvisorWhisper() {
     container.style.borderLeftColor = "#3498db";
 }
 
+<div class="bg-white border border-indigo-100 p-4 rounded-xl shadow-sm hover:shadow-md transition relative group">
+  <div class="flex justify-between items-start mb-2">
+    <h3 class="font-bold text-gray-800 text-sm">快活クラブ</h3>
+    <button class="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">
+      <i class="fas fa-trash-alt text-xs"></i>
+    </button>
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full w-fit">
+      🚀 開発費
+    </span>
+    <span class="text-[10px] text-gray-400">
+      <i class="fas fa-wallet mr-1"></i> 現金
+    </span>
+  </div>
+</div>
+
+
+
 
 
 //END OF FILE
