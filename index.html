@@ -627,76 +627,72 @@
 
 
 <!-- 自分ルール追加 -->    
-<section id="smart-rule-settings" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 border border-gray-100 font-sans">
-  <div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-5 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <span class="text-2xl">🧭</span>
+<style>
+  .rule-container { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 24px; font-family: sans-serif; border: 1px solid #eee; }
+  .rule-header { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; }
+  .rule-form-box { background: #f8fafc; padding: 20px; margin: 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+  .rule-label { display: block; font-size: 11px; font-weight: bold; color: #4f46e5; margin-bottom: 5px; text-transform: uppercase; }
+  .rule-input, .rule-select { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 14px; background: white; }
+  .rule-add-btn { background: #4f46e5; color: white; border: none; border-radius: 8px; padding: 10px 20px; font-weight: bold; cursor: pointer; transition: 0.2s; align-self: flex-end; height: 42px; }
+  .rule-add-btn:hover { background: #4338ca; transform: translateY(-1px); }
+  .rule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; padding: 0 20px 20px; }
+  .rule-save-area { border-top: 1px solid #eee; padding: 20px; text-align: center; }
+  .rule-save-btn { background: #10b981; color: white; border: none; border-radius: 12px; padding: 15px 30px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; transition: 0.2s; }
+  .rule-save-btn:hover { background: #059669; box-shadow: 0 4px 12px rgba(16,185,129,0.2); }
+</style>
+
+<section id="smart-rule-settings" class="rule-container">
+  <div class="rule-header">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 24px;">🧭</span>
       <div>
-        <h2 class="text-white font-bold text-lg leading-tight">スマートルール（自分辞書）</h2>
-        <p class="text-indigo-100 text-[11px] opacity-90">あなたの業種に合わせた「正解」を覚えさせましょう</p>
+        <div style="font-weight: bold; font-size: 18px;">スマートルール（自分辞書）</div>
+        <div style="font-size: 11px; opacity: 0.8;">業種に合わせた「正解」を覚えさせましょう</div>
       </div>
     </div>
-    <span id="rule-count-badge" class="bg-white/20 text-white text-xs px-3 py-1 rounded-full border border-white/30 backdrop-blur-sm">
-      0 ルール登録済み
-    </span>
+    <span id="rule-count-badge" style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px;">0 ルール登録済み</span>
   </div>
 
-  <div class="p-6">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-slate-50 rounded-2xl mb-8 border border-slate-100 shadow-inner">
-      <div class="md:col-span-1">
-        <label class="block text-[11px] text-indigo-600 font-bold mb-1.5 uppercase tracking-wider">キーワード（店名など）</label>
-        <input type="text" id="new-rule-keyword" placeholder="例: 快活クラブ, ｺﾒﾀﾞ" 
-               class="w-full border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 shadow-sm transition-all">
-      </div>
-      
-      <div class="md:col-span-1">
-        <label class="block text-[11px] text-indigo-600 font-bold mb-1.5 uppercase tracking-wider">適用する科目</label>
-        <select id="new-rule-account" class="w-full border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 shadow-sm bg-white cursor-pointer">
-          <option value="🚀 開発費">🚀 開発費</option>
-          <option value="📦 消耗品費">📦 消耗品費</option>
-          <option value="☕ 福利厚生費">☕ 福利厚生費</option>
-          <option value="🤝 接待交際費">🤝 接待交際費</option>
-          <option value="🚃 旅費交通費">🚃 旅費交通費</option>
-          <option value="🚚 車両費">🚚 車両費</option>
-        </select>
-      </div>
-
-      <div class="md:col-span-1">
-        <label class="block text-[11px] text-indigo-600 font-bold mb-1.5 uppercase tracking-wider">デフォルトの財布</label>
-        <select id="new-rule-wallet" class="w-full border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 shadow-sm bg-white cursor-pointer">
-          <option value="">指定なし（自動推論）</option>
-          <option value="💳 クレジットカード">💳 クレジットカード</option>
-          <option value="💴 現金">💴 現金</option>
-          <option value="📱 PayPay">📱 PayPay</option>
-        </select>
-      </div>
-
-      <div class="flex items-end">
-        <button onclick="addNewSmartRule()" 
-                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg hover:shadow-indigo-200 active:transform active:scale-95 flex items-center justify-center gap-2">
-          <i class="fas fa-plus-circle"></i>
-          追加
-        </button>
-      </div>
+  <div class="rule-form-box">
+    <div>
+      <label class="rule-label">キーワード（店名など）</label>
+      <input type="text" id="new-rule-keyword" placeholder="例: 快活クラブ, ｺﾒﾀﾞ" class="rule-input">
     </div>
-
-    <div id="smart-rule-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-      </div>
-
-    <div class="border-t border-slate-100 pt-6">
-      <button onclick="persistRules()" 
-              class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-bold shadow-xl shadow-emerald-100 transition-all flex items-center justify-center gap-3 group">
-        <i class="fas fa-save group-hover:animate-bounce"></i>
-        <span>設定を羅針盤に刻む（保存）</span>
-      </button>
-      <p class="text-[11px] text-slate-400 text-center mt-4 flex items-center justify-center gap-2">
-        <i class="fas fa-info-circle"></i>
-        保存すると次回インポート時から「あなただけの正解」が優先的に適用されます。
-      </p>
+    <div>
+      <label class="rule-label">適用する科目</label>
+      <select id="new-rule-account" class="rule-select">
+        <option value="🚀 開発費">🚀 開発費</option>
+        <option value="📦 消耗品費">📦 消耗品費</option>
+        <option value="☕ 福利厚生費">☕ 福利厚生費</option>
+        <option value="🤝 接待交際費">🤝 接待交際費</option>
+        <option value="🚃 旅費交通費">🚃 旅費交通費</option>
+        <option value="🚚 車両費">🚚 車両費</option>
+      </select>
     </div>
+    <div>
+      <label class="rule-label">デフォルトの財布</label>
+      <select id="new-rule-wallet" class="rule-select">
+        <option value="">指定なし（自動推論）</option>
+        <option value="💳 クレジットカード">💳 クレジットカード</option>
+        <option value="💴 現金">💴 現金</option>
+        <option value="📱 PayPay">📱 PayPay</option>
+      </select>
+    </div>
+    <button onclick="addNewSmartRule()" class="rule-add-btn">ルールを追加</button>
   </div>
-</section>
-<!-- 自分ルール追加終わり -->
+
+  <div id="smart-rule-list" class="rule-grid">
+    </div>
+
+  <div class="rule-save-area">
+    <button onclick="persistRules()" class="rule-save-btn">
+      <i class="fas fa-save"></i> 設定を羅針盤に刻む（保存）
+    </button>
+    <p style="color: #94a3b8; font-size: 11px; margin-top: 10px;">
+      ※保存すると次回インポート時から「あなただけの正解」が優先適用されます。
+    </p>
+  </div>
+</section><!-- 自分ルール追加終わり -->
     
     <!-- インポート自動振り分け -->
     <div class="section-card">
