@@ -51,7 +51,31 @@ function navigate(page) {
   const mainContent = document.getElementById('main-content');
   if (mainContent) mainContent.scrollTop = 0;
 
+// --- app.js の上部に追加 ---
 
+// 1. 【箱】ユーザー定義のマイルール（初期値 or ローカルストレージから取得）
+let userCustomRules = JSON.parse(localStorage.getItem('bizNaviCustomRules')) || [
+    // 初期設定ウィザード未実施時のサンプル
+    { keyword: "快活クラブ", account: "開発費", wallet: "現金", memo: "開発環境利用" },
+    { keyword: "ENEOS", account: "車両費", wallet: "クレジットカード", memo: "ガソリン代" }
+];
+
+// 2. 【箱】業種設定（ウィザードで決定する内容）
+let userIndustry = localStorage.getItem('bizNaviIndustry') || "software_dev"; // デフォルト
+
+// ルールを保存する共通関数
+function saveCustomRules() {
+    localStorage.setItem('bizNaviCustomRules', JSON.stringify(userCustomRules));
+}
+
+// ルールを追加する共通関数
+function addCustomRule(keyword, account, wallet, memo) {
+    userCustomRules.push({ keyword, account, wallet, memo });
+    saveCustomRules();
+}
+  
+
+  
   
 // ==========================================
 // app.js の navigate 関数内：修正版
