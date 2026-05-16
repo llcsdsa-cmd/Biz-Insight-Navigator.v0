@@ -3135,23 +3135,6 @@ function updateAdvisorWhisper() {
     container.style.borderLeftColor = "#3498db";
 }
 
-<div class="bg-white border border-indigo-100 p-4 rounded-xl shadow-sm hover:shadow-md transition relative group">
-  <div class="flex justify-between items-start mb-2">
-    <h3 class="font-bold text-gray-800 text-sm">快活クラブ</h3>
-    <button class="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">
-      <i class="fas fa-trash-alt text-xs"></i>
-    </button>
-  </div>
-  <div class="flex flex-col gap-1">
-    <span class="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full w-fit">
-      🚀 開発費
-    </span>
-    <span class="text-[10px] text-gray-400">
-      <i class="fas fa-wallet mr-1"></i> 現金
-    </span>
-  </div>
-</div>
-
 /**
  * 🧭 スマートルールの描画（レンダリング）
  * userCustomRules 配列の中身を HTMLカードに変換して画面に出す
@@ -3159,6 +3142,9 @@ function updateAdvisorWhisper() {
 function renderSmartRules() {
     const listContainer = document.getElementById('smart-rule-list');
     const badge = document.getElementById('rule-count-badge');
+    
+    // 要素が見つからない場合はスキップ（エラー防止）
+    if (!listContainer || !badge) return;
     
     // 1. 中身を一旦空にする
     listContainer.innerHTML = '';
@@ -3196,9 +3182,13 @@ function renderSmartRules() {
  * ➕ 新しいルールの追加
  */
 function addNewSmartRule() {
-    const keyword = document.getElementById('new-rule-keyword').value;
-    const account = document.getElementById('new-rule-account').value;
-    const wallet = document.getElementById('new-rule-wallet').value;
+    const keywordInput = document.getElementById('new-rule-keyword');
+    const accountInput = document.getElementById('new-rule-account');
+    const walletInput = document.getElementById('new-rule-wallet');
+
+    const keyword = keywordInput.value.trim();
+    const account = accountInput.value;
+    const wallet = walletInput.value;
 
     if (!keyword) {
         alert("キーワードを入力してくださいぜ、工場長！");
@@ -3209,7 +3199,7 @@ function addNewSmartRule() {
     userCustomRules.push({ keyword, account, wallet });
     
     // 入力欄をクリア
-    document.getElementById('new-rule-keyword').value = '';
+    keywordInput.value = '';
     
     // 再描画
     renderSmartRules();
@@ -3236,9 +3226,12 @@ function persistRules() {
 // --- 初期実行 ---
 // ページ読み込み時に描画する
 document.addEventListener('DOMContentLoaded', () => {
+    // userCustomRules が未定義の場合は空配列で初期化（エラー防止）
+    if (typeof userCustomRules === 'undefined') {
+        window.userCustomRules = [];
+    }
     renderSmartRules();
 });
-
 
 
 
