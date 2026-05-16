@@ -3182,8 +3182,14 @@ function renderSmartRules() {
  */
 
 
+/* * 🧭 スマートルール管理ロジック
+ * 修正内容: 追加・削除時のオートセーブ（自動永続化）を実装。
+ * 不要なアラート付き保存関数を自動実行版へ統合。
+ * 最終更新: 2026-05-16
+ */
+
 /**
- * ➕ 新しいルールの追加
+ * ➕ 新しいルールの追加（自動保存対応）
  */
 function addNewSmartRule() {
     const keywordInput = document.getElementById('new-rule-keyword');
@@ -3199,38 +3205,43 @@ function addNewSmartRule() {
         return;
     }
 
-    // 箱（配列）に追加
+    // 1. メモリ上の配列に追加
     userCustomRules.push({ keyword, account, wallet });
     
-    // 入力欄をクリア
+    // 2. 入力欄をクリア
     keywordInput.value = '';
     
-    // 再描画
+    // 3. 画面（カード一覧）を更新
     renderSmartRules();
+
+    // 4. ローカルストレージに自動保存
+    persistRulesSilently();
 }
 
 /**
- * 🗑️ ルールの削除
+ * 🗑️ ルールの削除（自動保存対応）
  */
 function deleteSmartRule(index) {
     if (confirm("このルールを削除してもよろしいですか？")) {
         userCustomRules.splice(index, 1);
         renderSmartRules();
+        // 削除後も即座に保存
+        persistRulesSilently();
     }
 }
 
 /**
- * 💾 データの保存（ローカルストレージへ）
+ * 💾 データのサイレント保存
+ * ユーザーの邪魔をせず、バックグラウンドでローカルストレージへ保存する
  */
-function persistRules() {
+function persistRulesSilently() {
     localStorage.setItem('bizNaviCustomRules', JSON.stringify(userCustomRules));
-    alert("羅針盤にルールを刻みました！🧭✨");
+    console.log("Biz-Navi: 羅針盤に自動保存されました。");
 }
 
 // --- 初期実行 ---
-// ページ読み込み時に描画する
 document.addEventListener('DOMContentLoaded', () => {
-    // userCustomRules が未定義の場合は空配列で初期化（エラー防止）
+    // userCustomRules が未定義の場合は空配列で初期化
     if (typeof userCustomRules === 'undefined') {
         window.userCustomRules = [];
     }
